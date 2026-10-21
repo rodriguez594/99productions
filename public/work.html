@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>99 PRODUCTIONS</title>
+  <meta name="theme-color" content="#000000">
+  <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Sans:wght@400;500&family=Share+Tech+Mono&display=swap">
+  <link rel="stylesheet" href="/css/site.css">
+  <script type="module" src="/js/work.js"></script>
+</head>
+<body class="work">
+  <header class="hud-top">
+    <a class="brand" href="/">99PROD</a>
+    <nav>
+      <a class="hud-link" href="/contact" data-i18n="contact">Contact</a>
+      <a class="hud-link" href="/archive" data-i18n="archive">Archive</a>
+    </nav>
+    <button class="lang" type="button">EN / DA</button>
+  </header>
+
+  <main id="main">
+    <section class="player is-paused" id="player" aria-label="Video player">
+      <div class="stage" id="stage">
+        <div class="stage-video" data-cursor="play"><video id="video" playsinline preload="auto"></video></div>
+        <div class="big-play" aria-hidden="true" data-i18n="play">Play</div>
+        <div class="frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      </div>
+      <div class="side side-l"><button type="button" class="fs" data-i18n="fullscreen">Fullscreen</button></div>
+      <div class="side side-r">
+        <button type="button" class="snd" aria-pressed="false">Sound off</button>
+        <button type="button" class="ply">Play</button>
+      </div>
+      <div class="scrub-row">
+        <span class="time" id="cur">00:00</span>
+        <div class="scrub" id="scrub" role="slider" tabindex="0" aria-label="Seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div class="scrub-tip" id="tip">00:00</div>
+        </div>
+        <span class="time" id="dur">00:00</span>
+      </div>
+      <div class="player-mobile-controls">
+        <button type="button" class="ply">Play</button>
+        <button type="button" class="snd" aria-pressed="false">Sound off</button>
+        <button type="button" class="fs" data-i18n="fullscreen">Fullscreen</button>
+      </div>
+      <div class="titles">
+        <h1><span class="reveal-up" id="title"></span></h1>
+        <p><span class="reveal-up" id="artist"></span></p>
+      </div>
+    </section>
+
+    <section class="details">
+      <h2 data-i18n="credits">Credits</h2>
+      <dl class="credits" id="credits"></dl>
+    </section>
+
+    <nav class="pager" id="pager" aria-label="More work"></nav>
+  </main>
+
+  <button class="mode-dot" type="button" aria-label="Colour / mono" aria-pressed="false"><span></span><span></span><span></span></button>
+</body>
+</html>

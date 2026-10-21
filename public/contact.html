@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Contact · 99 PRODUCTIONS</title>
+  <meta name="description" content="Work with 99 PRODUCTIONS: music videos, promos and commercials.">
+  <meta name="theme-color" content="#1f2124">
+  <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Sans:wght@400;500&family=Share+Tech+Mono&display=swap">
+  <link rel="stylesheet" href="/css/site.css">
+  <script type="module" src="/js/contact.js"></script>
+</head>
+<body class="contact">
+  <header class="hud-top">
+    <a class="brand" href="/">99PROD</a>
+    <nav>
+      <a class="hud-link" href="/contact" data-i18n="contact">Contact</a>
+      <a class="hud-link" href="/archive" data-i18n="archive">Archive</a>
+    </nav>
+    <button class="lang" type="button">EN / DA</button>
+  </header>
+
+  <main class="cgrid">
+    <section class="c-top">
+      <a class="c-reel" id="reel" href="/archive" data-cursor="view">
+        <span data-i18n="view-showreel">View showreel</span>
+      </a>
+      <div class="c-where">99PROD.DK<br>DENMARK<br><span class="clock" id="clock">--:--:--</span></div>
+    </section>
+
+    <aside class="c-side">
+      <div class="c-stills" id="stills"></div>
+      <div class="c-stills-bar">
+        <span id="still-n">000 / 000</span>
+        <span><button type="button" id="still-prev" data-i18n="prev">Prev</button> &nbsp; <button type="button" id="still-next" data-i18n="next">Next</button></span>
+      </div>
+    </aside>
+
+    <section class="c-main">
+      <h1>Press record.</h1>
+      <div class="c-links" id="links"></div>
+    </section>
+
+    <div class="c-bottom">
+      <div class="wall" aria-hidden="true"><div class="wall-inner" id="wall"></div></div>
+      <div class="c-meta">
+        <button class="mode-btn" type="button" aria-pressed="false"><span data-i18n="mode">Mode</span>: <b data-mode-label>Colour</b></button>
+        <div class="spaced">99PROD</div>
+        <div class="row2"><span id="family"></span><span>©<span id="year"></span></span></div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

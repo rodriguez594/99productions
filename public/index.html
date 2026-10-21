@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>99 PRODUCTIONS</title>
+  <meta name="description" content="99 PRODUCTIONS: music videos, promos and commercials. Part of 99.">
+  <meta name="theme-color" content="#000000">
+  <meta property="og:title" content="99 PRODUCTIONS">
+  <meta property="og:description" content="Music videos, promos and commercials. Part of 99.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Sans:wght@400;500&family=Share+Tech+Mono&display=swap">
+  <link rel="stylesheet" href="/css/site.css">
+  <script type="module" src="/js/home.js"></script>
+</head>
+<body class="home">
+  <div class="loader" id="loader" hidden aria-hidden="true">
+    <div class="loader-count" id="loader-count">00</div>
+    <div class="loader-meta"><span>99PROD</span><span>99PROD.DK</span></div>
+    <div class="loader-bar" id="loader-bar"></div>
+  </div>
+
+  <header class="hud-top">
+    <a class="brand" href="/">99PROD</a>
+    <nav>
+      <a class="hud-link" href="/contact" data-i18n="contact">Contact</a>
+      <a class="hud-link" href="/archive" data-i18n="archive">Archive</a>
+    </nav>
+    <button class="lang" type="button">EN / DA</button>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1 class="sr-only">99 PRODUCTIONS</h1>
+      <div class="hero-logo"><img src="/assets/logo.svg" alt="" width="735" height="678"></div>
+      <div class="hero-word" aria-hidden="true">Productions</div>
+    </section>
+    <div class="hero-hint" id="hint" data-i18n="scroll">Scroll</div>
+    <section class="reel" id="reel" aria-label="Work"></section>
+  </main>
+
+  <div class="gauge" id="gauge" aria-hidden="true"></div>
+  <div class="hud-bottom" id="hud">
+    <span class="cat scramble"></span>
+    <span class="ttl scramble"></span>
+    <span class="art scramble"></span>
+    <span class="idx"></span>
+  </div>
+  <button class="mode-dot" type="button" aria-label="Colour / mono" aria-pressed="false"><span></span><span></span><span></span></button>
+
+  <footer class="site-foot">
+    <div class="fam" id="family"></div>
+    <a class="mid" href="/archive" data-i18n="all-work">All work</a>
+    <div class="end">©<span id="year"></span> 99 PRODUCTIONS</div>
+  </footer>
+</body>
+</html>

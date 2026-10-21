@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Admin · 99 PRODUCTIONS</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#1f2124">
+  <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&family=Share+Tech+Mono&display=swap">
+  <link rel="stylesheet" href="/admin/admin.css">
+  <script type="module" src="/admin/admin.js"></script>
+</head>
+<body>
+  <!-- Login -->
+  <section class="login" id="login" hidden>
+    <form class="login-card" id="login-form">
+      <img src="/assets/logo.svg" alt="99" width="96">
+      <p class="label">99 PRODUCTIONS · Admin</p>
+      <input type="password" id="password" placeholder="Password" autocomplete="current-password" required>
+      <button class="btn primary" type="submit">Log in</button>
+      <p class="msg" id="login-msg" role="alert"></p>
+    </form>
+  </section>
+
+  <!-- List -->
+  <section class="app" id="app" hidden>
+    <header class="bar">
+      <span class="brand">99PROD <span class="dim">Admin</span></span>
+      <a class="link" id="site-link" href="/" target="_blank" rel="noopener">View site ↗</a>
+      <button class="link" type="button" id="logout">Log out</button>
+      <button class="btn primary" type="button" id="new">+ New video</button>
+    </header>
+    <main class="wrap">
+      <div class="list-head">
+        <h1 class="label">Videos <span class="dim" id="count"></span></h1>
+        <p class="hint">Drag to change the order. The top one is first on the homepage.</p>
+      </div>
+      <ol class="list" id="list"></ol>
+      <p class="empty" id="empty" hidden>No videos yet. Press <b>+ New video</b> to upload the first one.</p>
+    </main>
+  </section>
+
+  <!-- Editor -->
+  <section class="editor" id="editor" hidden>
+    <header class="bar">
+      <button class="link" type="button" id="back">← Videos</button>
+      <span class="brand" id="editor-title">New video</span>
+      <button class="btn danger" type="button" id="delete" hidden>Delete</button>
+      <button class="btn primary" type="button" id="save">Save</button>
+    </header>
+    <main class="wrap edit-grid">
+      <div class="col">
+        <div class="drop" id="drop">
+          <video id="pv" playsinline controls preload="metadata" hidden></video>
+          <label class="drop-empty" id="drop-empty">
+            <input type="file" id="file" accept="video/mp4,video/quicktime,video/webm,video/*" hidden>
+            <span class="label">Drop a video here or click to choose</span>
+            <span class="hint">MP4 (H.264) plays everywhere. Any size works.</span>
+          </label>
+        </div>
+        <div class="progress" id="progress" hidden>
+          <div class="progress-bar"><i id="progress-fill"></i></div>
+          <div class="progress-row"><span id="progress-text">Uploading…</span><button class="link" type="button" id="cancel-upload">Cancel</button></div>
+        </div>
+        <div class="file-row">
+          <label class="btn"><input type="file" id="file2" accept="video/mp4,video/quicktime,video/webm,video/*" hidden>Replace video</label>
+          <span class="hint" id="meta"></span>
+        </div>
+
+        <div class="poster-box">
+          <div class="label">Poster (cover image)</div>
+          <div class="poster-row">
+            <div class="poster"><img id="poster-img" alt="" hidden><span class="hint" id="poster-none">None yet</span></div>
+            <div class="poster-actions">
+              <button class="btn" type="button" id="grab">Use current frame</button>
+              <label class="btn"><input type="file" id="poster-file" accept="image/jpeg,image/png,image/webp" hidden>Upload image</label>
+              <span class="hint">Pause the video on a good frame, then “Use current frame”.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <form class="col fields" id="form" autocomplete="off">
+        <label>Title *<input name="title" required maxlength="200" placeholder="e.g. ICEMAN"></label>
+        <label>Artist<input name="artist" maxlength="200" placeholder="e.g. Artist name"></label>
+        <div class="two">
+          <label>Category
+            <select name="category">
+              <option value="music-video">Music video</option>
+              <option value="promo">Promo</option>
+              <option value="commercial">Commercial</option>
+              <option value="showreel">Showreel</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
+          <label>Year<input name="year" type="number" min="1950" max="2100" inputmode="numeric"></label>
+        </div>
+        <label>Link name<input name="slug" maxlength="80" placeholder="made from the title"><span class="hint" id="slug-hint"></span></label>
+
+        <fieldset>
+          <legend class="label">Credits</legend>
+          <div id="credits"></div>
+          <button class="link" type="button" id="add-credit">+ Add credit</button>
+        </fieldset>
+
+        <label class="check"><input type="checkbox" name="featured" checked> Show on the homepage reel</label>
+        <label class="check"><input type="checkbox" name="published"> Published (visible on 99prod.dk)</label>
+        <p class="msg" id="form-msg" role="alert"></p>
+      </form>
+    </main>
+  </section>
+
+  <div class="toast" id="toast" role="status" hidden></div>
+</body>
+</html>

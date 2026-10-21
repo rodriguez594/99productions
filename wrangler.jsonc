@@ -1,0 +1,27 @@
+{
+  // 99 PRODUCTIONS: one Worker serves 99prod.dk (site) and admin.99prod.dk (admin).
+  // D1 and R2 have no IDs on purpose: wrangler creates them on the first deploy
+  // and keeps them linked afterwards (automatic resource provisioning).
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "99productions",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": true,
+    "not_found_handling": "404-page"
+  },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "99productions" }
+  ],
+  "r2_buckets": [
+    { "binding": "MEDIA", "bucket_name": "99productions-media" }
+  ],
+  "routes": [
+    { "pattern": "99prod.dk", "custom_domain": true },
+    { "pattern": "www.99prod.dk", "custom_domain": true },
+    { "pattern": "admin.99prod.dk", "custom_domain": true }
+  ],
+  "observability": { "enabled": true }
+}
