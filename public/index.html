@@ -38,11 +38,16 @@
       <div class="hero-logo"><img src="/assets/logo.svg" alt="" width="735" height="678"></div>
       <div class="hero-word" aria-hidden="true">Productions</div>
     </section>
-    <div class="hero-hint" id="hint" data-i18n="scroll">Scroll</div>
+    <div class="hero-hint" id="hint"><span data-i18n="scroll">Scroll</span></div>
     <section class="reel" id="reel" aria-label="Work"></section>
   </main>
 
   <div class="gauge" id="gauge" aria-hidden="true"></div>
+  <div class="pips" id="pips" hidden>
+    <button type="button" data-d="-1" aria-label="Previous"></button>
+    <button type="button" data-d="0" aria-label="Current" tabindex="-1"></button>
+    <button type="button" data-d="1" aria-label="Next"></button>
+  </div>
   <div class="hud-bottom" id="hud">
     <span class="cat scramble"></span>
     <span class="ttl scramble"></span>
@@ -52,9 +57,9 @@
   <button class="mode-dot" type="button" aria-label="Colour / mono" aria-pressed="false"><span></span><span></span><span></span></button>
 
   <footer class="site-foot">
-    <div class="fam" id="family"></div>
+    <div class="start"><img src="/assets/logo.svg" alt="" width="33" height="30"><span>©<span id="year"></span> 99 PRODUCTIONS, <span data-i18n="part-of">part of 99</span></span></div>
     <a class="mid" href="/archive" data-i18n="all-work">All work</a>
-    <div class="end">©<span id="year"></span> 99 PRODUCTIONS</div>
+    <div class="fam" id="family"></div>
   </footer>
 </body>
 </html>

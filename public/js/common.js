@@ -45,6 +45,10 @@ const DA = {
   email: "Email",
   "all-work": "Alt arbejde",
   view: "Se",
+  "part-of": "en del af 99",
+  what: "Musikvideoer, promos & reklamer",
+  loading: "Indlæser",
+  close: "Luk",
 };
 const EN = {
   archive: "Archive",
@@ -78,6 +82,10 @@ const EN = {
   email: "Email",
   "all-work": "All work",
   view: "View",
+  "part-of": "part of 99",
+  what: "Music videos, promos & commercials",
+  loading: "Loading",
+  close: "Close",
 };
 
 const store = {

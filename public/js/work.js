@@ -17,6 +17,13 @@ if (index === -1) {
   setup(videos[index]);
 }
 
+// 00:01.307 style timecode.
+function clockMs(sec) {
+  if (!Number.isFinite(sec) || sec < 0) sec = 0;
+  const ms = Math.floor((sec % 1) * 1000);
+  return `${clock(sec)}.${String(ms).padStart(3, "0")}`;
+}
+
 function setup(v) {
   document.title = `${v.title}${v.artist ? ` · ${v.artist}` : ""} · 99 PRODUCTIONS`;
   const player = document.getElementById("player");
@@ -24,8 +31,8 @@ function setup(v) {
   const video = document.getElementById("video");
   const scrub = document.getElementById("scrub");
   const tip = document.getElementById("tip");
-  const cur = document.getElementById("cur");
-  const dur = document.getElementById("dur");
+  const stageVideo = document.getElementById("stage-video");
+  const times = document.querySelectorAll("#time, .fs-time");
 
   stage.style.setProperty("--ar", ratio(v));
   document.getElementById("title").textContent = v.title;
@@ -69,7 +76,8 @@ function setup(v) {
     const p = video.duration ? video.currentTime / video.duration : 0;
     const at = Math.round(p * (ticks.length - 1));
     ticks.forEach((tk, i) => { tk.className = i < at ? "on" : i === at ? "head" : ""; });
-    cur.textContent = clock(video.currentTime);
+    const txt = `${clockMs(video.currentTime)} / ${clockMs(video.duration)}`;
+    times.forEach((el) => (el.textContent = txt));
     scrub.setAttribute("aria-valuenow", String(Math.round(p * 100)));
     scrub.setAttribute("aria-valuetext", clock(video.currentTime));
   };
@@ -102,13 +110,19 @@ function setup(v) {
   const syncPlay = () => {
     player.classList.toggle("is-paused", video.paused);
     playBtns.forEach((b) => (b.textContent = t(video.paused ? "play" : "pause")));
+    // The cursor label over the video says what a click will do.
+    stageVideo.dataset.cursor = video.paused ? "play" : "pause";
+    document.querySelector(".cursor.is-media .cursor-label")?.replaceChildren(t(stageVideo.dataset.cursor));
   };
+  // Muted shows SOUND dimmed, sound on shows it bright.
   const syncSound = () => {
     soundBtns.forEach((b) => {
-      b.textContent = t(video.muted ? "sound-off" : "sound");
+      b.textContent = t("sound");
       b.setAttribute("aria-pressed", String(!video.muted));
+      b.setAttribute("aria-label", t(video.muted ? "sound-off" : "sound"));
     });
   };
+  const setLoading = (on) => player.classList.toggle("is-loading", on);
   const toggleSound = () => { video.muted = !video.muted; syncSound(); };
   const fullscreen = () => {
     if (document.fullscreenElement) return document.exitFullscreen();
@@ -123,10 +137,25 @@ function setup(v) {
   document.querySelectorAll(".fs").forEach((b) => b.addEventListener("click", fullscreen));
 
   video.addEventListener("play", () => { syncPlay(); if (!raf) raf = requestAnimationFrame(loop); });
+  video.addEventListener("waiting", () => setLoading(true));
+  video.addEventListener("playing", () => setLoading(false));
+  video.addEventListener("canplay", () => setLoading(false));
+  video.addEventListener("error", () => setLoading(false));
   video.addEventListener("pause", syncPlay);
   video.addEventListener("ended", syncPlay);
   video.addEventListener("seeked", paint);
-  video.addEventListener("loadedmetadata", () => { dur.textContent = clock(video.duration); paint(); });
+  video.addEventListener("loadedmetadata", paint);
+
+  // Fullscreen bar hides after a moment without movement.
+  let idle;
+  const wake = () => {
+    stage.classList.remove("is-idle");
+    clearTimeout(idle);
+    if (document.fullscreenElement) idle = setTimeout(() => stage.classList.add("is-idle"), 2200);
+  };
+  stage.addEventListener("pointermove", wake);
+  document.addEventListener("fullscreenchange", wake);
+  stage.querySelector(".fs-bar").addEventListener("click", (e) => e.stopPropagation());
   document.addEventListener("langchange", () => { syncPlay(); syncSound(); });
 
   addEventListener("keydown", (e) => {

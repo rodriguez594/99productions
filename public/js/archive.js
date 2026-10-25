@@ -26,7 +26,6 @@ function render() {
         <span class="n">[${pad(i + 1)}]</span>
         <span class="t">${esc(v.title)}</span>
         <span class="a">${esc(v.artist)}</span>
-        <span class="c">${esc(t(v.category))}${v.year ? ` · ${v.year}` : ""}</span>
         <span class="d">${v.duration ? clock(v.duration) : "--:--"}</span>
       </a>
     </li>`
@@ -93,10 +92,12 @@ rowsEl.addEventListener("pointerover", (e) => {
   clearTimeout(hideTimer);
   const i = Number(row.dataset.i);
   preview.classList.add("is-on");
+  bendTo(1);
   if (i === current) return;
   current = i;
   const v = videos[i];
   preview.style.aspectRatio = String(ratio(v));
+  drawLens();
   pvideo.poster = v.poster || "";
   pvideo.src = v.video;
   pvideo.addEventListener("loadedmetadata", () => {
@@ -111,8 +112,45 @@ rowsEl.addEventListener("pointerleave", () => {
     preview.classList.remove("is-on");
     pvideo.pause();
     current = -1;
+    bendTo(0);
   }, 120);
 });
+
+// Lens lines. Two guides run down the sides of the preview. While a clip shows they bow
+// outwards, and four more lines run from the screen edges into the preview's corners.
+const lens = document.getElementById("lens");
+const paths = [...lens.children];
+let bend = 0, bendTarget = 0, bendRaf;
+
+function drawLens() {
+  const W = innerWidth, H = innerHeight;
+  // Layout size, not getBoundingClientRect: the preview scales a little as it appears.
+  const w = preview.offsetWidth, h = preview.offsetHeight;
+  const L = W / 2 - w / 2, R = W / 2 + w / 2, T = H / 2 - h / 2, B = H / 2 + h / 2;
+  const bow = 22 * bend, drop = 36 * bend;
+  paths[0].setAttribute("d", `M${L + bow} 0 Q${L - bow} ${H / 2} ${L + bow} ${H}`);
+  paths[1].setAttribute("d", `M${R - bow} 0 Q${R + bow} ${H / 2} ${R - bow} ${H}`);
+  paths[2].setAttribute("d", `M0 ${T + drop} L${L} ${T}`);
+  paths[3].setAttribute("d", `M${R} ${T} L${W} ${T + drop * 0.3}`);
+  paths[4].setAttribute("d", `M0 ${B - drop * 0.3} L${L} ${B}`);
+  paths[5].setAttribute("d", `M${R} ${B} L${W} ${B - drop}`);
+  paths.slice(2).forEach((p) => (p.style.opacity = String(bend)));
+}
+
+function bendTo(target) {
+  bendTarget = target;
+  if (reducedMotion) { bend = target; drawLens(); return; }
+  cancelAnimationFrame(bendRaf);
+  const step = () => {
+    bend += (bendTarget - bend) * 0.16;
+    if (Math.abs(bendTarget - bend) < 0.002) bend = bendTarget;
+    drawLens();
+    if (bend !== bendTarget) bendRaf = requestAnimationFrame(step);
+  };
+  bendRaf = requestAnimationFrame(step);
+}
+addEventListener("resize", drawLens);
+drawLens();
 // Idle wobble while a clip is showing.
 setInterval(() => {
   if (preview.classList.contains("is-on") && !reducedMotion) noise.setAttribute("seed", String((Math.random() * 100) | 0));

@@ -23,31 +23,37 @@
   </header>
 
   <main id="main">
-    <section class="player is-paused" id="player" aria-label="Video player">
+    <section class="player is-paused is-loading" id="player" aria-label="Video player">
+      <div class="rules" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
       <div class="stage" id="stage">
-        <div class="stage-video" data-cursor="play"><video id="video" playsinline preload="auto"></video></div>
+        <div class="stage-video" id="stage-video" data-cursor="play"><video id="video" playsinline preload="auto"></video></div>
         <div class="big-play" aria-hidden="true" data-i18n="play">Play</div>
+        <div class="loading" aria-hidden="true" data-i18n="loading">Loading</div>
         <div class="frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <div class="fs-bar">
+          <button type="button" class="fs" data-i18n="close">Close</button>
+          <span class="time fs-time">00:00.000 / 00:00.000</span>
+          <button type="button" class="snd" aria-pressed="false">Sound</button>
+        </div>
       </div>
       <div class="side side-l"><button type="button" class="fs" data-i18n="fullscreen">Fullscreen</button></div>
       <div class="side side-r">
-        <button type="button" class="snd" aria-pressed="false">Sound off</button>
+        <button type="button" class="snd" aria-pressed="false">Sound</button>
         <button type="button" class="ply">Play</button>
       </div>
       <div class="scrub-row">
-        <span class="time" id="cur">00:00</span>
         <div class="scrub" id="scrub" role="slider" tabindex="0" aria-label="Seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
           <div class="scrub-tip" id="tip">00:00</div>
         </div>
-        <span class="time" id="dur">00:00</span>
       </div>
       <div class="player-mobile-controls">
         <button type="button" class="ply">Play</button>
-        <button type="button" class="snd" aria-pressed="false">Sound off</button>
+        <button type="button" class="snd" aria-pressed="false">Sound</button>
         <button type="button" class="fs" data-i18n="fullscreen">Fullscreen</button>
       </div>
       <div class="titles">
         <h1><span class="reveal-up" id="title"></span></h1>
+        <span class="time" id="time">00:00.000 / 00:00.000</span>
         <p><span class="reveal-up" id="artist"></span></p>
       </div>
     </section>

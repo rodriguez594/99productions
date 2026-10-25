@@ -7,6 +7,7 @@ const reel = document.getElementById("reel");
 const hud = document.getElementById("hud");
 const gauge = document.getElementById("gauge");
 const hint = document.getElementById("hint");
+const pips = document.getElementById("pips");
 const [hCat, hTitle, hArtist, hIdx] = hud.children;
 
 document.getElementById("year").textContent = new Date().getFullYear();
@@ -69,7 +70,9 @@ function setup() {
     scramble(hCat, t(v.category));
     scramble(hTitle, v.title);
     scramble(hArtist, v.artist);
-    hIdx.textContent = `${pad(i + 1)} / ${pad(videos.length)}`;
+    hIdx.textContent = `${pad(i + 1)} – ${pad(videos.length)}`;
+    pips.querySelector('[data-d="-1"]').disabled = i === 0;
+    pips.querySelector('[data-d="1"]').disabled = i === items.length - 1;
   }
 
   function onScroll() {
@@ -115,6 +118,12 @@ function setup() {
     if (e.target.closest("input, textarea")) return;
     if (e.key === "ArrowDown" || e.key === "j") { e.preventDefault(); goTo(focus + 1); }
     if (e.key === "ArrowUp" || e.key === "k") { e.preventDefault(); goTo(focus - 1); }
+  });
+
+  pips.hidden = items.length < 2;
+  pips.addEventListener("click", (e) => {
+    const d = Number(e.target.closest("button")?.dataset.d);
+    if (d) goTo(focus + d);
   });
 
   gauge.style.pointerEvents = "auto";
