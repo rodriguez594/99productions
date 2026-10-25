@@ -13,7 +13,7 @@ The look follows the 99 family (white on black, Share Tech Mono + IBM Plex Sans)
 
 - **Worker `99productions`** (`src/worker.js`) serves everything for both domains.
 - **Static files** in `public/` are plain HTML/CSS/JS with no build step.
-- **D1** (database `99productions`) holds the video list. The tables are created automatically on the first request.
+- **D1** (database `99productions`) holds the video list and the 🔥 / 👎 votes from the contact page (one per visitor, stored as a hash of their IP). The tables are created automatically on the first request.
 - **R2** (bucket `99productions-media`) holds the video and poster files. Videos stream with byte ranges, so seeking works. Uploads go in 32 MB parts, so any file size works.
 - Every push to `main` deploys to the live site, through Cloudflare Workers Builds (`npx wrangler deploy`). There's no separate production/staging branch.
 - **D1 and R2 have no IDs in `wrangler.jsonc` on purpose.** Wrangler creates them on the first deploy and keeps them linked.

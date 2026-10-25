@@ -3,7 +3,31 @@ import { initShell, getVideos, CONFIG, pad, esc, reducedMotion } from "./common.
 initShell();
 
 document.getElementById("year").textContent = new Date().getFullYear();
-document.getElementById("family").innerHTML = CONFIG.family.map((f) => `<a href="${f.url}">${f.name}</a>`).join(" &nbsp; ");
+document.getElementById("family").innerHTML = CONFIG.family.map((f) => `<a href="${f.url}">${f.name}</a>`).join("");
+
+// 🔥 / 👎 reactions. Counts come from the server, which also remembers this visitor's pick.
+const reacts = document.getElementById("reacts");
+const showReacts = (d) => {
+  if (!d?.counts) return;
+  reacts.querySelectorAll("button").forEach((b) => {
+    b.setAttribute("aria-pressed", String(d.mine === b.dataset.kind));
+    b.querySelector("small").textContent = d.counts[b.dataset.kind] ?? 0;
+  });
+};
+fetch("/api/reactions").then((r) => r.json()).then(showReacts).catch(() => {});
+reacts.addEventListener("click", async (e) => {
+  const b = e.target.closest("button");
+  if (!b || reacts.dataset.busy) return;
+  reacts.dataset.busy = "1";
+  b.classList.remove("pop");
+  void b.offsetWidth;
+  b.classList.add("pop");
+  try {
+    const r = await fetch("/api/reactions", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ kind: b.dataset.kind }) });
+    showReacts(await r.json());
+  } catch {}
+  delete reacts.dataset.busy;
+});
 
 const links = [
   ["Instagram", CONFIG.instagram],

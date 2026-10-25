@@ -50,7 +50,14 @@
       <div class="c-meta">
         <button class="mode-btn" type="button" aria-pressed="false"><span data-i18n="mode">Mode</span>: <b data-mode-label>Colour</b></button>
         <div class="spaced">99PROD</div>
-        <div class="row2"><span id="family"></span><span>©<span id="year"></span></span></div>
+        <div class="fam-row" id="family"></div>
+        <div class="row2">
+          <div class="reacts" id="reacts" role="group" aria-label="React">
+            <button type="button" data-kind="fire" aria-pressed="false" aria-label="Fire"><span class="emo">🔥</span><small>0</small></button>
+            <button type="button" data-kind="down" aria-pressed="false" aria-label="Thumbs down"><span class="emo">👎</span><small>0</small></button>
+          </div>
+          <span>©<span id="year"></span></span>
+        </div>
       </div>
     </div>
   </main>

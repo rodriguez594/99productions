@@ -394,9 +394,22 @@ body.contact { background: var(--panel); }
 .wall-line span { padding-right: 0.35em; }
 .wall-line span:nth-child(odd) { color: transparent; -webkit-text-stroke: 1.5px var(--panel); }
 @keyframes wall { to { transform: translateX(-50%); } }
-.c-meta { border-left: 1px solid var(--faint); display: grid; grid-template-rows: auto 1fr auto; padding: 22px var(--gutter); gap: 16px; }
+.c-meta { border-left: 1px solid var(--faint); display: grid; grid-template-rows: auto 1fr auto auto; padding: 22px var(--gutter); gap: 16px; }
+.c-meta .fam-row { display: flex; gap: 18px; color: var(--dim); }
+.c-meta .fam-row a:hover { color: var(--fg); }
 .c-meta .spaced { align-self: center; justify-self: center; letter-spacing: 0.7em; margin-right: -0.7em; }
-.c-meta .row2 { display: flex; justify-content: space-between; color: var(--dim); }
+.c-meta .row2 { display: flex; justify-content: space-between; align-items: center; color: var(--dim); }
+/* 🔥 / 👎: pick one, pick it again to take it back. */
+.reacts { display: flex; gap: 14px; }
+.reacts button { display: flex; align-items: center; gap: 6px; color: var(--dim); }
+.reacts .emo { display: inline-block; font-size: 22px; line-height: 1; filter: grayscale(0.6) brightness(0.8); transition: transform 0.3s var(--ease), filter 0.3s; }
+.reacts button:hover .emo { transform: scale(1.15) rotate(-6deg); filter: none; }
+.reacts button[aria-pressed="true"] { color: var(--fg); }
+.reacts button[aria-pressed="true"] .emo { filter: none; }
+.reacts button.pop .emo { animation: pop 0.45s var(--ease); }
+.reacts small { font-size: inherit; font-variant-numeric: tabular-nums; }
+html.mono .reacts .emo { filter: grayscale(1); }
+@keyframes pop { 40% { transform: scale(1.5) rotate(-10deg); } }
 .c-meta .row2 a:hover { color: var(--fg); }
 .mode-btn b { font-weight: 400; color: var(--fg); margin-left: 12px; }
 .mode-btn { color: var(--dim); text-align: left; }

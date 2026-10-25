@@ -102,6 +102,8 @@ function ensureSchema(env) {
     env.DB.prepare(`CREATE INDEX IF NOT EXISTS videos_sort ON videos (sort)`),
     env.DB.prepare(`CREATE TABLE IF NOT EXISTS login_attempts (ip TEXT NOT NULL, at INTEGER NOT NULL)`),
     env.DB.prepare(`CREATE INDEX IF NOT EXISTS login_attempts_ip ON login_attempts (ip, at)`),
+    // 🔥 / 👎 on the contact page: one vote per visitor, keyed by a hash of their IP.
+    env.DB.prepare(`CREATE TABLE IF NOT EXISTS reactions (voter TEXT PRIMARY KEY, kind TEXT NOT NULL, at INTEGER NOT NULL)`),
   ]).catch((err) => {
     schemaReady = undefined;
     throw err;
@@ -123,9 +125,46 @@ async function api(request, env, url) {
     return json({ videos: results.map(publicVideo) }, 200, { "cache-control": "no-cache" });
   }
 
+  if (path === "/api/reactions" && (method === "GET" || method === "POST")) return reactions(request, env);
+
   if (path.startsWith("/api/admin/")) return admin(request, env, url);
 
   return json({ error: "Not found" }, 404);
+}
+
+/* ---------------------------------------------------------------- reactions */
+
+const REACTIONS = ["fire", "down"];
+
+// GET returns the counts and this visitor's vote. POST { kind } votes; voting the same
+// kind again takes the vote back, voting the other kind switches it.
+async function reactions(request, env) {
+  const ip = request.headers.get("cf-connecting-ip") || "local";
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`99prod-reactions:${ip}`));
+  const voter = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+
+  if (request.method === "POST") {
+    // JSON only: a cross-site page can't send that without a CORS preflight, which we never allow.
+    if (!(request.headers.get("content-type") || "").startsWith("application/json")) return json({ error: "JSON only" }, 415);
+    const body = await request.json().catch(() => ({}));
+    if (!REACTIONS.includes(body.kind)) return json({ error: "Bad reaction" }, 400);
+    const old = await env.DB.prepare(`SELECT kind FROM reactions WHERE voter = ?`).bind(voter).first();
+    if (old?.kind === body.kind) {
+      await env.DB.prepare(`DELETE FROM reactions WHERE voter = ?`).bind(voter).run();
+    } else {
+      await env.DB.prepare(`INSERT INTO reactions (voter, kind, at) VALUES (?, ?, ?) ON CONFLICT (voter) DO UPDATE SET kind = excluded.kind, at = excluded.at`)
+        .bind(voter, body.kind, Date.now())
+        .run();
+    }
+  }
+
+  const [{ results }, mine] = await Promise.all([
+    env.DB.prepare(`SELECT kind, COUNT(*) AS n FROM reactions GROUP BY kind`).all(),
+    env.DB.prepare(`SELECT kind FROM reactions WHERE voter = ?`).bind(voter).first(),
+  ]);
+  const counts = Object.fromEntries(REACTIONS.map((k) => [k, 0]));
+  for (const r of results) if (REACTIONS.includes(r.kind)) counts[r.kind] = r.n;
+  return json({ counts, mine: mine?.kind || null });
 }
 
 function publicVideo(row) {
