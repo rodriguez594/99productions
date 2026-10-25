@@ -12,6 +12,7 @@ let filter = "all";
 if (!videos.length) {
   rowsEl.outerHTML = `<p class="archive-empty" data-i18n="soon">${t("soon")}</p>`;
 } else {
+  document.getElementById("count").textContent = `[${pad(videos.length)}]`;
   render();
   renderFilters();
   document.addEventListener("langchange", () => { render(); renderFilters(); });

@@ -8,6 +8,7 @@ const hud = document.getElementById("hud");
 const gauge = document.getElementById("gauge");
 const hint = document.getElementById("hint");
 const pips = document.getElementById("pips");
+const hero = document.querySelector(".hero");
 const [hCat, hTitle, hArtist, hIdx] = hud.children;
 
 document.getElementById("year").textContent = new Date().getFullYear();
@@ -26,11 +27,14 @@ if (!videos.length) {
     .map(
       (v, i) => `
     <a class="reel-item" href="/work/${encodeURIComponent(v.slug)}" data-i="${i}">
-      <div class="reel-media" style="--ar:${ratio(v)}" data-cursor="view">
-        ${v.poster ? `<img class="media" src="${esc(v.poster)}" alt="" loading="${i < 2 ? "eager" : "lazy"}">` : ""}
-        <video class="media" muted playsinline loop preload="none" data-src="${esc(v.video)}" aria-label="${esc(v.title)}"></video>
+      <div class="reel-box">
+        <div class="reel-media" style="--ar:${ratio(v)}" data-cursor="view">
+          ${v.poster ? `<img class="media" src="${esc(v.poster)}" alt="" loading="${i < 2 ? "eager" : "lazy"}">` : ""}
+          <video class="media" muted playsinline loop preload="none" data-src="${esc(v.video)}" aria-label="${esc(v.title)}"></video>
+        </div>
+        <div class="frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
       </div>
-      <div class="frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      <div class="reel-cap"><span>${esc(v.title)}</span><span>${esc(v.artist)}</span></div>
     </a>`
     )
     .join("");
@@ -49,12 +53,16 @@ function setup() {
     if (vid && !vid.src) vid.src = vid.dataset.src;
   };
 
+  // Clips further from the viewfinder are cropped narrower, so the stack tapers.
+  const CUT = ["0%", "7%", "13%", "17%"];
+
   function setFocus(i) {
     if (i === focus) return;
     focus = i;
     items.forEach((el, j) => {
       const on = j === i;
       el.classList.toggle("is-focus", on);
+      el.style.setProperty("--cut", CUT[Math.min(CUT.length - 1, Math.abs(j - i))]);
       const vid = el.querySelector("video");
       const media = el.querySelector(".reel-media");
       if (on) {
@@ -90,6 +98,8 @@ function setup() {
     const at = Math.round(p * (TICKS - 1));
     ticks.forEach((tk, i) => { tk.classList.toggle("on", i <= at); tk.classList.toggle("at", i === at); });
     hint.style.opacity = scrollY > 40 ? 0 : 1;
+    // The logo fades out as the reel takes over.
+    hero.style.opacity = String(Math.max(0, 1 - scrollY / (hero.offsetHeight * 0.75)));
   }
 
   let raf;
@@ -110,9 +120,19 @@ function setup() {
     }
     // Shared-element page transition: the focused clip grows into the player.
     item.querySelector(".reel-media").style.viewTransitionName = "film";
+    if (reducedMotion || e.metaKey || e.ctrlKey || e.shiftKey) return;
+    // First the rest clears and guide lines shoot out from the clip's edges. The player page
+    // has lines with the same names, so the page transition slides them into its frame.
+    e.preventDefault();
+    crosshair(item.querySelector(".reel-media").getBoundingClientRect());
+    setTimeout(() => (location.href = item.href), 560);
   });
-  // Coming back from the player (bfcache): clear the transition name.
-  addEventListener("pageshow", () => items.forEach((el) => (el.querySelector(".reel-media").style.viewTransitionName = "")));
+  // Coming back from the player (bfcache): undo the exit.
+  addEventListener("pageshow", () => {
+    items.forEach((el) => (el.querySelector(".reel-media").style.viewTransitionName = ""));
+    document.body.classList.remove("is-leaving");
+    document.querySelector(".xhair")?.remove();
+  });
 
   addEventListener("keydown", (e) => {
     if (e.target.closest("input, textarea")) return;
@@ -133,6 +153,18 @@ function setup() {
   });
 }
 
+function crosshair(r) {
+  const el = document.createElement("div");
+  el.className = "xhair";
+  el.setAttribute("aria-hidden", "true");
+  el.style.cssText = `--t:${r.top}px; --b:${r.bottom}px; --l:${r.left}px; --r:${r.right}px; --cx:${r.left + r.width / 2}px; --cy:${r.top + r.height / 2}px`;
+  el.innerHTML = "<i></i><i></i><i></i><i></i>";
+  document.body.append(el);
+  document.body.classList.add("is-leaving");
+  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add("is-on")));
+}
+
+// Intro, once per visit: the showreel full screen behind a counter that runs to 99.
 function runLoader() {
   const el = document.getElementById("loader");
   let seen = false;
@@ -141,15 +173,32 @@ function runLoader() {
   el.hidden = false;
   const count = document.getElementById("loader-count");
   const bar = document.getElementById("loader-bar");
+  const vid = document.getElementById("loader-video");
+  const now = new Date().getFullYear();
+  document.getElementById("loader-years").textContent = now;
+  const handle = CONFIG.instagram.match(/instagram\.com\/([^/?#]+)/)?.[1];
+  if (handle) document.getElementById("loader-handle").textContent = `@${handle}`;
+
+  getVideos().then((list) => {
+    const v = list.find((x) => x.category === "showreel") || list[0];
+    if (v) {
+      vid.src = v.video;
+      vid.play().then(() => vid.classList.add("is-on")).catch(() => {});
+    }
+    const from = Math.min(now, ...list.map((x) => x.year).filter(Boolean));
+    if (from < now) document.getElementById("loader-years").textContent = `${from} – ${now}`;
+  });
+
   const start = performance.now();
-  const dur = 1300;
-  const step = (now) => {
-    const p = Math.min(1, (now - start) / dur);
-    const e = 1 - Math.pow(1 - p, 3);
+  const dur = 2600;
+  const step = (t) => {
+    const p = Math.min(1, (t - start) / dur);
+    const e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
     count.textContent = pad(Math.round(e * 99));
     bar.style.width = `${e * 100}%`;
-    if (p < 1) requestAnimationFrame(step);
-    else setTimeout(() => el.classList.add("is-done"), 220);
+    if (p < 1) return requestAnimationFrame(step);
+    setTimeout(() => el.classList.add("is-done"), 300);
+    setTimeout(() => { vid.pause(); vid.removeAttribute("src"); vid.load(); }, 1200);
   };
   requestAnimationFrame(step);
 }

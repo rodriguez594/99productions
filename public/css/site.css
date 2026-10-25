@@ -21,7 +21,8 @@
 }
 
 @view-transition { navigation: auto; }
-::view-transition-group(film) { animation-duration: 0.55s; animation-timing-function: var(--ease); }
+::view-transition-group(film), ::view-transition-group(rule-t), ::view-transition-group(rule-b),
+::view-transition-group(rule-l), ::view-transition-group(rule-r) { animation-duration: 0.7s; animation-timing-function: var(--ease); }
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 0.3s; }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -110,13 +111,25 @@ html.mono .mode-dot span:nth-child(3) { transform: translateX(-4px); }
 
 /* ---------------------------------------------------------------- loader */
 .loader {
-  position: fixed; inset: 0; z-index: 90; background: var(--bg);
-  display: grid; place-items: center; transition: opacity 0.6s var(--ease), visibility 0.6s;
+  position: fixed; inset: 0; z-index: 90; background: var(--bg); overflow: hidden;
+  display: grid; place-items: center; transition: opacity 0.7s var(--ease), visibility 0.7s;
 }
 .loader.is-done { opacity: 0; visibility: hidden; }
-.loader-count { font: 400 clamp(120px, 26vw, 360px) / 0.8 var(--display); letter-spacing: 0; font-variant-numeric: tabular-nums; }
-.loader-meta { position: absolute; left: var(--gutter); right: var(--gutter); bottom: 20px; display: flex; justify-content: space-between; color: var(--dim); }
+/* The showreel plays full screen behind the counter. */
+.loader-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: scale(1.08); transition: opacity 1.2s, transform 3.5s var(--ease); }
+.loader-video.is-on { opacity: 0.6; transform: none; }
+.loader-mid { position: relative; display: grid; justify-items: center; gap: 12px; }
+.loader-mid img { width: 34px; height: auto; }
+#loader-count { font-variant-numeric: tabular-nums; }
+.loader-c { position: absolute; z-index: 1; }
+.loader-c i { font-style: normal; color: var(--dim); letter-spacing: 0.2em; }
+.loader-c.tl { left: var(--gutter); top: 22px; }
+.loader-c.tc { left: 50%; top: 22px; transform: translateX(-50%); color: var(--dim); }
+.loader-c.tr { right: var(--gutter); top: 22px; }
+.loader-c.bl { left: var(--gutter); bottom: 20px; }
+.loader-c.br { right: var(--gutter); bottom: 20px; color: var(--dim); }
 .loader-bar { position: absolute; left: 0; bottom: 0; height: 1px; background: var(--fg); width: 0; }
+@media (max-width: 720px) { .loader-c.tc { display: none; } .loader-c.bl { right: 120px; } }
 
 /* ---------------------------------------------------------------- HOME */
 /* The hero is short so the first clip already sits in the viewfinder under the logo. */
@@ -138,12 +151,15 @@ html.mono .mode-dot span:nth-child(3) { transform: translateX(-4px); }
 }
 
 .reel { display: grid; justify-items: center; gap: 26px; padding: 56px var(--gutter) 42vh; }
-.reel-item { position: relative; display: block; scroll-margin: 0; transition: transform 0.7s var(--ease); }
+.reel-item { position: relative; display: block; scroll-margin: 0; transition: transform 0.7s var(--ease), opacity 0.35s; }
+.reel-box { position: relative; }
+/* Away from the viewfinder a clip keeps its height but is cropped narrower (--cut, set per item). */
 .reel-media {
   position: relative; width: min(28vw, calc(38svh * var(--ar, 1.7778))); min-width: 280px; aspect-ratio: var(--ar, 1.7778);
-  background: #0c0c0d; transform: scale(0.88); opacity: 0.32; filter: brightness(0.7);
-  transition: transform 0.7s var(--ease), opacity 0.6s var(--ease), filter 0.6s;
+  background: #0c0c0d; opacity: 0.32; filter: brightness(0.7); clip-path: inset(0 var(--cut, 0%));
+  transition: clip-path 0.7s var(--ease), opacity 0.6s var(--ease), filter 0.6s;
 }
+.reel-cap { display: none; }
 .reel-media video, .reel-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .reel-media img { transition: opacity 0.4s; }
 .reel-media.is-playing img { opacity: 0; }
@@ -152,7 +168,7 @@ html.mono .mode-dot span:nth-child(3) { transform: translateX(-4px); }
 .reel-item .frame i:nth-child(2) { transform: translate(14px, -14px); }
 .reel-item .frame i:nth-child(3) { transform: translate(-14px, 14px); }
 .reel-item .frame i:nth-child(4) { transform: translate(14px, 14px); }
-.reel-item.is-focus .reel-media { transform: none; opacity: 1; filter: none; }
+.reel-item.is-focus .reel-media { opacity: 1; filter: none; }
 .reel-item.is-focus .frame i { opacity: 1; transform: none; }
 /* The clip in the viewfinder leans in when you point at it. */
 @media (hover: hover) and (pointer: fine) {
@@ -161,6 +177,21 @@ html.mono .mode-dot span:nth-child(3) { transform: translateX(-4px); }
 html { scroll-snap-type: y proximity; }
 .reel-item { scroll-snap-align: center; }
 .reel-empty { padding: 10vh 0 30vh; text-align: center; color: var(--dim); }
+.hero { transition: opacity 0.2s linear; }
+
+/* Opening a clip: everything else clears and guide lines shoot out from the clip's edges. */
+body.is-leaving .hero, body.is-leaving .hero-hint, body.is-leaving .reel-item:not(.is-focus), body.is-leaving .hud-bottom,
+body.is-leaving .gauge, body.is-leaving .pips, body.is-leaving .site-foot, body.is-leaving .reel-item .frame { opacity: 0 !important; transition: opacity 0.3s; }
+body.is-leaving .reel-item.is-focus { transform: none; }
+.xhair { position: fixed; inset: 0; z-index: 35; pointer-events: none; }
+.xhair i { position: absolute; background: var(--line); transition: transform 0.5s var(--ease); }
+.xhair i:nth-child(1), .xhair i:nth-child(2) { left: 0; right: 0; height: 1px; transform: scaleX(0); transform-origin: var(--cx) 0; }
+.xhair i:nth-child(3), .xhair i:nth-child(4) { top: 0; bottom: 0; width: 1px; transform: scaleY(0); transform-origin: 0 var(--cy); }
+.xhair i:nth-child(1) { top: var(--t); view-transition-name: rule-t; }
+.xhair i:nth-child(2) { top: calc(var(--b) - 1px); view-transition-name: rule-b; }
+.xhair i:nth-child(3) { left: var(--l); view-transition-name: rule-l; }
+.xhair i:nth-child(4) { left: calc(var(--r) - 1px); view-transition-name: rule-r; }
+.xhair.is-on i { transform: none; }
 
 .hud-bottom {
   position: fixed; inset: auto 0 0 0; z-index: 30; height: 60px; padding: 0 var(--gutter);
@@ -174,8 +205,14 @@ html { scroll-snap-type: y proximity; }
   .hud-bottom { grid-template-columns: 1fr 1fr auto; background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent); }
   .hud-bottom .cat { display: none; }
   .hud-bottom > :nth-child(2) { justify-self: start; }
-  .reel-media { width: min(80vw, calc(52svh * var(--ar, 1.7778))); min-width: 0; }
-  .reel-item .frame { inset: -14px; }
+  .reel-media { width: calc(100vw - 2 * var(--gutter)); min-width: 0; opacity: 0.7; filter: none; clip-path: none; }
+  .reel-item .frame { display: none; }
+  .reel-cap { display: flex; justify-content: space-between; gap: 16px; padding-top: 10px; }
+  .reel-cap span:last-child { color: var(--dim); text-align: right; }
+  .reel { gap: 36px; padding-top: 24px; padding-bottom: 80px; }
+  .hero { height: auto; min-height: 0; padding: 110px 0 40px; }
+  .hero-hint { display: none; }
+  .hud-bottom { display: none; }
   .mode-dot { display: none; }
 }
 
@@ -209,10 +246,10 @@ html { scroll-snap-type: y proximity; }
 /* Thin rules box the video in: one under the top HUD, one above the titles, one down each side. */
 .player { --pt: 64px; --ps: 80px; --pb: 150px; position: relative; height: 100svh; min-height: 520px; overflow: hidden; }
 .rules i { position: absolute; background: var(--line); pointer-events: none; }
-.rules i:nth-child(1) { left: 0; right: 0; top: var(--pt); height: 1px; }
-.rules i:nth-child(2) { left: 0; right: 0; bottom: var(--pb); height: 1px; }
-.rules i:nth-child(3) { top: 0; bottom: 0; left: var(--ps); width: 1px; }
-.rules i:nth-child(4) { top: 0; bottom: 0; right: var(--ps); width: 1px; }
+.rules i:nth-child(1) { left: 0; right: 0; top: var(--pt); height: 1px; view-transition-name: rule-t; }
+.rules i:nth-child(2) { left: 0; right: 0; bottom: var(--pb); height: 1px; view-transition-name: rule-b; }
+.rules i:nth-child(3) { top: 0; bottom: 0; left: var(--ps); width: 1px; view-transition-name: rule-l; }
+.rules i:nth-child(4) { top: 0; bottom: 0; right: var(--ps); width: 1px; view-transition-name: rule-r; }
 .stage { position: absolute; inset: var(--pt) var(--ps) var(--pb); }
 .stage-video { position: absolute; inset: 0; background: #000; view-transition-name: film; }
 .stage-video video { width: 100%; height: 100%; object-fit: contain; }
@@ -313,6 +350,8 @@ html { scroll-snap-type: y proximity; }
 .row.is-out { opacity: 0; transform: translateY(6px); }
 .rows:hover .row a:not(:hover) { color: var(--dim); }
 .archive-empty { padding: 30vh var(--gutter); text-align: center; color: var(--dim); }
+/* Only shown on phones; on desktop the list fills the screen on its own. */
+.archive-title { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; margin: 0; }
 
 .preview {
   position: fixed; left: 50%; top: 50%; z-index: 1; width: min(37vw, 760px); max-height: 62svh; aspect-ratio: 16 / 9;
@@ -350,7 +389,14 @@ html { scroll-snap-type: y proximity; }
   .row .a { grid-column: 2; grid-row: 2; color: var(--dim); }
   .row .d { grid-row: 1; grid-column: 3; }
   .rows:hover .row a:not(:hover) { color: inherit; }
-  .filters { left: 60px; justify-content: flex-start; gap: 16px; }
+  .archive { padding-top: 76px; }
+  .archive-title {
+    position: static; width: auto; height: auto; overflow: visible; clip: auto; white-space: normal;
+    margin: 0 var(--gutter); font: 400 clamp(56px, 17vw, 96px) / 0.9 var(--display); letter-spacing: 0.005em;
+  }
+  .archive-title sup { font: 400 13px / 1 var(--mono); letter-spacing: 0.04em; vertical-align: top; }
+  .filters { position: absolute; top: calc(76px + clamp(56px, 17vw, 96px) * 0.9 + 18px); left: var(--gutter); right: var(--gutter); bottom: auto; justify-content: flex-start; gap: 8px 18px; }
+  .rows { margin-top: 64px; }
 }
 
 /* ---------------------------------------------------------------- CONTACT */
@@ -416,7 +462,12 @@ html.mono .reacts .emo { filter: grayscale(1); }
 @media (max-width: 900px) {
   .cgrid, .c-bottom { grid-template-columns: 1fr; }
   .c-side { grid-column: 1; grid-row: auto; border-left-width: 0; border-top-width: 1px; padding-top: 0; }
-  .c-top { min-height: 340px; }
+  /* Phone order like a business card: where, how to reach us, then pictures. */
+  .c-top { order: 1; min-height: 340px; }
+  .c-main { order: 2; padding-top: 48px; }
+  .c-side { order: 3; }
+  .c-bottom { order: 4; }
+  .c-links { display: grid; grid-template-columns: 1fr 1fr; }
   .c-where { top: auto; bottom: 48px; right: auto; left: var(--gutter); }
   .c-what { bottom: 20px; }
   .c-meta { border-left: 0; border-top: 1px solid var(--faint); min-height: 180px; }
