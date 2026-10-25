@@ -89,7 +89,7 @@ function glitch() {
 
 rowsEl.addEventListener("pointerover", (e) => {
   const row = e.target.closest(".row");
-  if (!row || !matchMedia("(min-width: 901px)").matches) return;
+  if (!row || row.dataset.i === undefined || !matchMedia("(min-width: 901px)").matches) return;
   clearTimeout(hideTimer);
   const i = Number(row.dataset.i);
   preview.classList.add("is-on");

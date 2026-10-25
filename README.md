@@ -49,6 +49,25 @@ The look follows the 99 family (white on black, Share Tech Mono + IBM Plex Sans)
 
 The email and social links are at the top of `public/js/common.js` (`CONFIG`). An empty value hides that link.
 
+## Placeholder clips
+
+Until the first real video is published, the site shows six placeholder clips from `public/placeholder/`. They disappear by themselves as soon as one real video is published in the admin.
+
+## Easter eggs
+
+Hidden on purpose; the only hint is a message in the browser console.
+
+| Egg | How to find it |
+|---|---|
+| **99 ARCADE** (Snake 99, Brick 99, Reel Run) | Click the big 99 on the homepage nine times fast · type the Konami code (↑↑↓↓←→←→BA) · type `arcade` · on the archive, click "All" nine times to reveal track [99] · on the 404 page, press 9 |
+| 99 Luftballons | Type `luftballons` |
+| Agent 99 | Type `agent` |
+| Gretzky, No. 99 | Type `gretzky` |
+| VHS tape (9.9 seconds) | Click the colour dot (bottom left) nine times fast |
+| 99 Problems | On the contact page, click the clock three times |
+
+High scores are kept in the visitor's own browser. Code: `public/js/eggs.js` and `public/js/arcade.js`.
+
 ## Run locally
 
 ```sh

@@ -234,4 +234,5 @@ export function initShell() {
   applyLang();
   applyMode();
   initCursor();
+  import("./eggs.js").then((m) => m.initEggs()).catch(() => {});
 }

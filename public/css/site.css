@@ -473,6 +473,64 @@ html.mono .reacts .emo { filter: grayscale(1); }
   .wall-line { font-size: 40px; }
 }
 
+/* ---------------------------------------------------------------- EASTER EGGS */
+.egg-toast {
+  position: fixed; left: 50%; bottom: 76px; z-index: 120; transform: translate(-50%, 12px); opacity: 0; pointer-events: none;
+  padding: 10px 16px; background: var(--fg); color: var(--bg); white-space: nowrap; transition: opacity 0.3s, transform 0.4s var(--ease);
+}
+.egg-toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+@media (max-width: 720px) { .egg-toast { white-space: normal; width: calc(100vw - 32px); text-align: center; } }
+
+/* 99 Luftballons */
+.balloons { position: fixed; inset: 0; z-index: 110; pointer-events: none; overflow: hidden; }
+.balloons i {
+  position: absolute; bottom: -80px; border-radius: 50% 50% 48% 52% / 58% 58% 42% 42%;
+  background: radial-gradient(circle at 32% 28%, #ff7a7a, #e01818 55%, #8f0000);
+  animation: float linear forwards, sway ease-in-out infinite alternate;
+}
+.balloons i::after { content: ""; position: absolute; left: 50%; top: 100%; width: 1px; height: 46px; background: rgba(244, 245, 246, 0.35); }
+@keyframes float { to { transform: translateY(calc(-100vh - 160px)); } }
+@keyframes sway { from { margin-left: -14px; } to { margin-left: 14px; } }
+
+/* VHS tape */
+/* On the root element: a filter on body would pin every fixed element to the page instead of the screen. */
+html.vhs { filter: contrast(1.12) saturate(1.5) blur(0.35px); }
+html.vhs main { animation: vhs-jitter 0.2s steps(2) infinite; }
+@keyframes vhs-jitter { 50% { transform: translate(0.6px, -0.4px); } }
+.vhs-osd {
+  position: fixed; inset: 0; z-index: 115; pointer-events: none; font: 400 clamp(18px, 2.4vw, 30px) / 1 var(--mono);
+  color: #fff; text-shadow: 2px 0 rgba(255, 0, 60, 0.7), -2px 0 rgba(0, 200, 255, 0.7);
+  background: repeating-linear-gradient(to bottom, transparent 0 2px, rgba(0, 0, 0, 0.22) 2px 3px);
+}
+.vhs-osd span { position: absolute; top: 34px; left: 40px; }
+.vhs-osd .vhs-sp { left: auto; right: 40px; }
+.vhs-osd b { font-weight: 400; }
+.vhs-band { position: absolute; left: 0; right: 0; height: 26px; background: linear-gradient(transparent, rgba(255, 255, 255, 0.16), rgba(0, 0, 0, 0.3), transparent); animation: band 2.6s linear infinite; }
+@keyframes band { from { top: -30px; } to { top: 100%; } }
+
+/* Archive: the hidden ninety-ninth track. */
+.row-99 a { color: var(--fg); animation: glitch 0.4s steps(4) 1; }
+.row-99 .n, .row-99 .d { background: var(--fg); color: var(--bg); }
+
+.notfound .coin { color: var(--faint); font-size: 11px; }
+
+/* 99 ARCADE */
+html.arcade-open { overflow: hidden; }
+.arcade {
+  position: fixed; inset: 0; z-index: 130; background: rgba(0, 0, 0, 0.96); display: grid; place-items: center; align-content: center; gap: 18px;
+  padding: 24px var(--gutter); animation: arcade-in 0.45s var(--ease);
+}
+@keyframes arcade-in { from { opacity: 0; transform: scale(1.04); filter: brightness(3); } }
+.arcade-screen { position: relative; width: min(100%, calc((100svh - 120px) * 4 / 3), 960px); aspect-ratio: 4 / 3; }
+.arcade canvas { display: block; width: 100%; height: 100%; touch-action: none; border-radius: 3% / 4%; }
+.arcade-scan {
+  position: absolute; inset: 0; pointer-events: none; border-radius: 3% / 4%;
+  background: repeating-linear-gradient(to bottom, transparent 0 2px, rgba(0, 0, 0, 0.28) 2px 3px), radial-gradient(ellipse at center, transparent 60%, rgba(0, 0, 0, 0.55));
+}
+.arcade .frame { inset: -14px; }
+.arcade-bar { width: min(100%, calc((100svh - 120px) * 4 / 3), 960px); display: flex; justify-content: space-between; color: var(--dim); }
+.arcade-bar button:hover { color: var(--fg); }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
   html { scroll-snap-type: none; }

@@ -46,7 +46,7 @@ document.getElementById("wall").innerHTML = Array.from({ length: 7 }, () => `<di
 // Copenhagen time.
 const clockEl = document.getElementById("clock");
 const fmt = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Copenhagen", hour: "2-digit", minute: "2-digit", second: "2-digit", timeZoneName: "short" });
-const tick = () => (clockEl.textContent = fmt.format(new Date()));
+const tick = () => { if (!clockEl.dataset.egg) clockEl.textContent = fmt.format(new Date()); };
 tick();
 setInterval(tick, 1000);
 
