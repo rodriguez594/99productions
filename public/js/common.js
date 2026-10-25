@@ -190,14 +190,19 @@ function initCursor() {
   document.body.append(el);
   document.documentElement.classList.add("has-cursor");
   const label = el.querySelector(".cursor-label");
-  let x = -100, y = -100, cx = x, cy = y, raf;
-  const loop = () => {
-    cx += (x - cx) * 0.35;
-    cy += (y - cy) * 0.35;
+  // The ring trails the real cursor: each frame it covers a tenth of the gap
+  // (scaled by frame time, so it feels the same at 60 and 120 Hz).
+  let x = -100, y = -100, cx = x, cy = y, raf, last = 0;
+  const loop = (now) => {
+    const k = 1 - Math.pow(0.9, Math.min(4, (now - (last || now - 16.7)) / 16.7));
+    last = now;
+    cx += (x - cx) * k;
+    cy += (y - cy) * k;
     el.style.transform = `translate3d(${cx}px, ${cy}px, 0)`;
-    raf = Math.abs(x - cx) + Math.abs(y - cy) > 0.1 ? requestAnimationFrame(loop) : null;
+    raf = Math.abs(x - cx) + Math.abs(y - cy) > 0.1 ? requestAnimationFrame(loop) : (last = 0, null);
   };
   addEventListener("pointermove", (e) => {
+    if (x === -100) { cx = e.clientX; cy = e.clientY; }
     x = e.clientX;
     y = e.clientY;
     if (!raf) raf = requestAnimationFrame(loop);
@@ -206,7 +211,9 @@ function initCursor() {
     el.classList.toggle("is-link", !media && !!e.target.closest?.("a, button"));
     if (media) label.textContent = t(media.dataset.cursor);
   }, { passive: true });
-  document.addEventListener("pointerleave", () => { x = y = -100; if (!raf) raf = requestAnimationFrame(loop); });
+  // Hide the ring while the mouse is outside the window.
+  document.addEventListener("pointerleave", () => el.classList.add("is-out"));
+  document.addEventListener("pointerenter", () => el.classList.remove("is-out"));
 }
 
 // ---------------------------------------------------------------- shell

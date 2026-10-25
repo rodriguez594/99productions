@@ -27,6 +27,7 @@ export default {
     try {
       if (path.startsWith("/api/")) return await api(request, env, url);
       if (path.startsWith("/media/")) return await media(request, env, url);
+      if (path.startsWith("/placeholder/") && path.endsWith(".mp4")) return await placeholderMedia(request, env);
 
       if (adminHost) {
         if (path === "/" || path === "/index.html") return page(env, url, "/admin/", true);
@@ -122,7 +123,9 @@ async function api(request, env, url) {
     const { results } = await env.DB.prepare(
       `SELECT * FROM videos WHERE published = 1 AND video_key IS NOT NULL ORDER BY sort, created_at DESC`
     ).all();
-    return json({ videos: results.map(publicVideo) }, 200, { "cache-control": "no-cache" });
+    // Until the first real video is published the site shows the placeholder clips.
+    const videos = results.length ? results.map(publicVideo) : PLACEHOLDERS.map(placeholderVideo);
+    return json({ videos }, 200, { "cache-control": "no-cache" });
   }
 
   if (path === "/api/reactions" && (method === "GET" || method === "POST")) return reactions(request, env);
@@ -165,6 +168,57 @@ async function reactions(request, env) {
   const counts = Object.fromEntries(REACTIONS.map((k) => [k, 0]));
   for (const r of results) if (REACTIONS.includes(r.kind)) counts[r.kind] = r.n;
   return json({ counts, mine: mine?.kind || null });
+}
+
+/* ---------------------------------------------------------------- placeholders */
+
+// Shipped in public/placeholder/. They disappear by themselves once a real video is published.
+const PLACEHOLDERS = [
+  { n: "01", title: "Clip 01", category: "music-video" },
+  { n: "02", title: "Clip 02", category: "music-video" },
+  { n: "03", title: "Clip 03", category: "commercial", height: 536 },
+  { n: "04", title: "Clip 04", category: "promo" },
+  { n: "05", title: "Showreel", category: "showreel" },
+  { n: "06", title: "Clip 06", category: "music-video" },
+];
+
+function placeholderVideo(p) {
+  return {
+    id: `placeholder-${p.n}`,
+    slug: `placeholder-${p.n}`,
+    title: p.title,
+    artist: "Placeholder",
+    category: p.category,
+    year: new Date().getFullYear(),
+    duration: 8,
+    credits: [{ role: "Director", name: "99 PRODUCTIONS" }],
+    video: `/placeholder/clip-${p.n}.mp4`,
+    poster: `/placeholder/clip-${p.n}.jpg`,
+    width: 1280,
+    height: p.height || 720,
+    featured: true,
+    placeholder: true,
+  };
+}
+
+// Static files don't answer byte-range requests on their own, and Safari won't play
+// video without them. The clips are small, so slice them here.
+async function placeholderMedia(request, env) {
+  const res = await env.ASSETS.fetch(new Request(request.url, { method: "GET" }));
+  if (!res.ok || res.status === 206) return res;
+  const data = await res.arrayBuffer();
+  const headers = new Headers({ "content-type": "video/mp4", "accept-ranges": "bytes", "cache-control": "public, max-age=3600", "x-content-type-options": "nosniff" });
+  const rangeHeader = request.headers.get("range");
+  const range = rangeHeader ? parseRange(rangeHeader, data.byteLength) : null;
+  if (rangeHeader && !range) return new Response("Range not satisfiable", { status: 416, headers: { "content-range": `bytes */${data.byteLength}` } });
+  const body = request.method === "HEAD" ? null : range ? data.slice(range.offset, range.offset + range.length) : data;
+  if (range) {
+    headers.set("content-range", `bytes ${range.offset}-${range.offset + range.length - 1}/${data.byteLength}`);
+    headers.set("content-length", String(range.length));
+    return new Response(body, { status: 206, headers });
+  }
+  headers.set("content-length", String(data.byteLength));
+  return new Response(body, { status: 200, headers });
 }
 
 function publicVideo(row) {

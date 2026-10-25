@@ -89,9 +89,10 @@ html.mono .mode-dot span:nth-child(3) { transform: translateX(-4px); }
 .frame i:nth-child(4) { right: 0; bottom: 0; border-right-width: 1.5px; border-bottom-width: 1.5px; }
 
 /* ---------------------------------------------------------------- cursor */
-.cursor { position: fixed; left: 0; top: 0; z-index: 100; pointer-events: none; mix-blend-mode: difference; }
-/* A thin ring; it fills in over links and turns into an X over video. */
-.cursor-dot { position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; border: 1.5px solid #fff; transition: transform 0.25s var(--ease), background 0.2s, opacity 0.2s; }
+.cursor { position: fixed; left: 0; top: 0; z-index: 100; pointer-events: none; mix-blend-mode: difference; transition: opacity 0.4s; }
+.cursor.is-out { opacity: 0; }
+/* A thin ring that trails the normal cursor; it fills in over links and turns into an X over video. */
+.cursor-dot { position: absolute; width: 20px; height: 20px; margin: -10px 0 0 -10px; border-radius: 50%; border: 1px solid #fff; transition: transform 0.5s var(--ease), background 0.4s, opacity 0.2s; }
 .cursor-x { position: absolute; width: 44px; height: 44px; margin: -22px 0 0 -22px; opacity: 0; transform: scale(0.4) rotate(-45deg); transition: transform 0.35s var(--ease), opacity 0.25s; }
 .cursor-x::before, .cursor-x::after { content: ""; position: absolute; left: 50%; top: 0; width: 1px; height: 100%; background: #fff; }
 .cursor-x::before { transform: rotate(45deg); }
@@ -100,10 +101,7 @@ html.mono .mode-dot span:nth-child(3) { transform: translateX(-4px); }
 .cursor.is-media .cursor-x { opacity: 1; transform: none; }
 .cursor.is-media .cursor-dot { transform: scale(0.36); background: #fff; }
 .cursor.is-media .cursor-label { opacity: 1; }
-.cursor.is-link .cursor-dot { transform: scale(0.6); background: #fff; }
-@media (hover: hover) and (pointer: fine) {
-  html.has-cursor, html.has-cursor a, html.has-cursor button, html.has-cursor [data-cursor] { cursor: none; }
-}
+.cursor.is-link .cursor-dot { transform: scale(0.65); background: #fff; }
 @media (hover: none), (pointer: coarse) { .cursor { display: none; } }
 
 /* ---------------------------------------------------------------- scramble text */
